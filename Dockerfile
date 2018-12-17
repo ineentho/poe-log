@@ -25,24 +25,40 @@ RUN wget 'http://deb.playonlinux.com/playonlinux_stretch.list' -O /etc/apt/sourc
     libgstreamer-plugins-base1.0-0:i386 \
     xdotool \
     libjpeg62-turbo:i386 \
-    libmpg123-0:i386
+    libmpg123-0:i386 \
+    python3 \
+    python3-pip \
+    python3-xlib \
+    scrot
+
+RUN pip3 install pyautogui
 
 RUN export uid=1000 gid=1000 && \
     mkdir -p /home/poe && \
     echo "poe:x:${uid}:${gid}:poe,,,:/home/poe:/bin/bash" >> /etc/passwd && \
     echo "poe:x:${uid}:" >> /etc/group && \
-    chown ${uid}:${gid} -R /home/poe &&\
-    usermod -a -G video poe
+    chown ${uid}:${gid} -R /home/poe && \
+    usermod -a -G video poe && \
+    touch /home/poe/.Xauthority
 
 USER poe
 ENV HOME /home/poe
 ENV USER poe
+RUN mkdir /home/poe/setup /home/poe/launcher /home/poe/game
 
-COPY install-poe.sh playonlinux-poe.sh click-through-wizard.sh /home/poe/
-RUN /home/poe/install-poe.sh
+COPY setup /home/poe/setup
+RUN /home/poe/setup/install-poe.sh
 
-COPY patch-poe.sh /home/poe/
-RUN /home/poe/patch-poe.sh
+COPY launcher/ /home/poe/launcher
+RUN /home/poe/launcher/patch-poe.sh
+
+COPY game/ /home/poe/game
+
+ENV WINEPREFIX /home/poe/.PlayOnLinux/wineprefix/pathofexile/
+
+WORKDIR /home/poe
+
+CMD ["/home/poe/game/play.sh"]
 
 
 # RUN dpkg --add-architecture i386

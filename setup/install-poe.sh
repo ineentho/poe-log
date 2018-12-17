@@ -7,8 +7,8 @@ export DISPLAY=:1
 
 x11vnc -q 1>/dev/null 2>&1 &
 
-/home/poe/playonlinux-poe.sh&
-/home/poe/click-through-wizard.sh
+/home/poe/setup/playonlinux-poe.sh&
+/home/poe/setup/click-through-wizard.sh
 
 pkill Xvfb
 rm /tmp/.X1-lock
